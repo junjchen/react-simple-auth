@@ -40,6 +40,10 @@ describe('Authentication Service', () => {
         return { closed: true }
       })
 
+      providerMocks.buildAuthorizeUrl.mockImplementation(
+        requestKey => `https://fake.auth.url?state=${requestKey}`
+      )
+
       // Act
       const session = await RSA.acquireTokenAsync(
         mockProvider,
@@ -49,6 +53,40 @@ describe('Authentication Service', () => {
 
       // Assert
       expect(providerMocks.buildAuthorizeUrl.mock.calls.length).toBe(1)
+    })
+
+    it('should throw error if search parameter state is not present in the authorization url', async () => {
+      // Arrange
+      providerMocks.buildAuthorizeUrl.mockImplementation(
+        _ => `https://fake.auth.url`
+      )
+
+      // Act
+      try {
+        await RSA.acquireTokenAsync(mockProvider, mockStorage, mockWindow)
+      } catch (e) {
+        // Assert
+        expect(() => {
+          throw e
+        }).toThrowError()
+      }
+    })
+
+    it('should throw error if search parameter state is not set to requestKey in the authorization url', async () => {
+      // Arrange
+      providerMocks.buildAuthorizeUrl.mockImplementation(
+        _ => `https://fake.auth.url?state=other-value`
+      )
+
+      // Act
+      try {
+        await RSA.acquireTokenAsync(mockProvider, mockStorage, mockWindow)
+      } catch (e) {
+        // Assert
+        expect(() => {
+          throw e
+        }).toThrowError()
+      }
     })
 
     it('should throw error if storage for request key was undefined or empty after window was closed', async () => {
@@ -77,6 +115,9 @@ describe('Authentication Service', () => {
       providerMocks.extractError.mockReturnValue(
         new Error('invalid credentials')
       )
+      providerMocks.buildAuthorizeUrl.mockImplementation(
+        requestKey => `https://fake.auth.url?state=${requestKey}`
+      )
 
       // Act
       try {
@@ -103,6 +144,9 @@ describe('Authentication Service', () => {
 
       providerMocks.extractError.mockReturnValue(undefined)
       providerMocks.extractSession.mockReturnValue(testSession)
+      providerMocks.buildAuthorizeUrl.mockImplementation(
+        requestKey => `https://fake.auth.url?state=${requestKey}`
+      )
 
       // Act
       const session = await RSA.acquireTokenAsync(
@@ -133,6 +177,9 @@ describe('Authentication Service', () => {
 
       providerMocks.extractError.mockReturnValue(undefined)
       providerMocks.extractSession.mockReturnValue(testSession)
+      providerMocks.buildAuthorizeUrl.mockImplementation(
+        requestKey => `https://fake.auth.url?state=${requestKey}`
+      )
 
       // Act
       const session = await RSA.acquireTokenAsync(
