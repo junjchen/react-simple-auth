@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>React Simple Auth - Redirect</title>
+    </head>
+    <body>
+        <h1>React Simple Auth</h1>
+        <script>
+            // Get state from callback request as the unique request key
+            const url = location.href;
+            const stateMatch = url.match(/state=([^&]+)/)
+            if (stateMatch) {
+                const requestKey = stateMatch[1]
+                // Update corresponding entry with the redirected url which should contain either access token or failure reason in the query parameter / hash
+                window.localStorage.setItem(requestKey, window.location.href)
+            }
+            window.close()
+        </script>
+    </body>
+</html>
